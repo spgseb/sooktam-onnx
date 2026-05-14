@@ -9,16 +9,16 @@ import soundfile as sf
 import torch
 from pydub import AudioSegment
 
-from f5_tts.infer.cls_tokenizer_v2 import cls_tokenize_text
+from infer.cls_tokenizer_v2 import cls_tokenize_text
 
 
-DEFAULT_VOCAB_PATH = "/workspace/personal/team_folders/vansh.pundir/sooktam/sooktam2/vocab.txt"
-DEFAULT_ONNX_MODEL_A = "/workspace/personal/team_folders/vansh.pundir/sooktam/F5-TTS-ONNX/Export_ONNX/onnx/F5_Preprocess.onnx"
-DEFAULT_ONNX_MODEL_B = "/workspace/personal/team_folders/vansh.pundir/sooktam/F5-TTS-ONNX/Export_ONNX/onnx/F5_Transformer.onnx"
-DEFAULT_ONNX_MODEL_C = "/workspace/personal/team_folders/vansh.pundir/sooktam/F5-TTS-ONNX/Export_ONNX/onnx/F5_Decode.onnx"
-DEFAULT_OUTPUT_PATH = os.getenv("F5_ONNX_GPU_OUTPUT", "./generated_audio_gpu.wav")
+DEFAULT_VOCAB_PATH = "./infer/vocab.txt"
+DEFAULT_ONNX_MODEL_A = "../onnx/F5_Preprocess.onnx"
+DEFAULT_ONNX_MODEL_B = "../onnx/F5_Transformer.onnx"
+DEFAULT_ONNX_MODEL_C = "../onnx/F5_Decode.onnx"
+DEFAULT_OUTPUT_PATH = "../outputs/generated_audio_gpu.wav"
 
-DEFAULT_REFERENCE_AUDIO = "/workspace/personal/team_folders/vansh.pundir/sooktam/sooktam2/ref.wav"
+DEFAULT_REFERENCE_AUDIO = "./infer/ref.wav"
 DEFAULT_REF_TEXT = "सर, मैं तब से यह कह रहा हूँ कि मैंने अपना टिकट कैंसल कर दिया है, लेकिन अब तक मेरे पैसे वापस नहीं आए हैं। आप इस मामले को देखेंगे भी या नहीं"
 DEFAULT_GEN_TEXT = "सर, मैं तब से यह कह रहा हूँ कि मैंने अपना टिकट कैंसल कर दिया है, लेकिन अब तक मेरे पैसे वापस नहीं आए हैं। आप इस मामले को देखेंगे भी या नहीं?"
 DEFAULT_LANGUAGE = "hindi"
