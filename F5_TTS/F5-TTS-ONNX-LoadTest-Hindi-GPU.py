@@ -83,6 +83,7 @@ def main():
     runner = module.build_runner(
         device_id=module.DEFAULT_DEVICE_ID,
         max_threads=module.DEFAULT_MAX_THREADS,
+        trt_flag=True
     )
     print(f"Available Providers: {runner['available_providers']}")
     print(f"Transformer Providers: {runner['transformer_providers']}")
