@@ -1,3 +1,5 @@
+import sys
+import datetime
 import os
 import re
 import time
@@ -16,7 +18,8 @@ DEFAULT_VOCAB_PATH = "./infer/vocab.txt"
 DEFAULT_ONNX_MODEL_A = "../onnx/F5_Preprocess.onnx"
 DEFAULT_ONNX_MODEL_B = "../onnx/F5_Transformer.onnx"
 DEFAULT_ONNX_MODEL_C = "../onnx/F5_Decode.onnx"
-DEFAULT_OUTPUT_PATH = "../outputs/generated_audio_gpu.wav"
+OUT_DIR = "../outputs/"
+DEFAULT_OUTPUT_PATH = OUT_DIR + "generated_audio_gpu.wav"
 
 DEFAULT_REFERENCE_AUDIO = "./infer/ref.wav"
 DEFAULT_REF_TEXT = "सर, मैं तब से यह कह रहा हूँ कि मैंने अपना टिकट कैंसल कर दिया है, लेकिन अब तक मेरे पैसे वापस नहीं आए हैं। आप इस मामले को देखेंगे भी या नहीं"
@@ -310,26 +313,55 @@ def run_inference(
             print(f"\nSaved: {output_path}")
     return result
 
+g_start_ts = 0
+def print_ts(str, init_flag=False):
+    global g_start_ts
+    delta_ts = 0
+    if init_flag:
+         print(f"TS initialized: {datetime.datetime.now()}")
+         g_start_ts = time.perf_counter_ns()
+    else:
+         delta_ts = time.perf_counter_ns() - g_start_ts
+    delta_ts = delta_ts // 1_000_000
+    print(f"{delta_ts:10d}: {str}")
 
 def main():
+    print_ts("Building model", True)
     runner = build_runner(device_id=DEFAULT_DEVICE_ID, max_threads=DEFAULT_MAX_THREADS, trt_flag=True)
     print(f"\nAvailable Providers: {runner['available_providers']}")
     print(f"Transformer Providers: {runner['transformer_providers']}")
     print(f"Using CUDA device id: {runner['device_id']}")
 
-    run_inference(
-        runner,
-        reference_audio=DEFAULT_REFERENCE_AUDIO,
-        ref_text=DEFAULT_REF_TEXT,
-        gen_text=DEFAULT_GEN_TEXT,
-        generated_audio=DEFAULT_OUTPUT_PATH,
-        speed=DEFAULT_SPEED,
-        nfe_step=DEFAULT_NFE_STEP,
-        fuse_nfe=DEFAULT_FUSE_NFE,
-        language=DEFAULT_LANGUAGE,
-        verbose=True,
-    )
+    # Argument processing
+    global DEFAULT_GEN_TEXT, DEFAULT_OUTPUT_PATH
+    if len(sys.argv) > 1:
+        fname = sys.argv[1]
+        with open(os.path.join(OUT_DIR, fname), "r") as f:
+            DEFAULT_GEN_TEXT = f.read()
+        DEFAULT_OUTPUT_PATH = os.path.join(OUT_DIR, f"{fname}.wav")
+    if len(sys.argv) > 2:
+        loop_cnt = int(sys.argv[2])
+        verbose_flag = False
+    else:
+        loop_cnt = 1
+        verbose_flag = True
+    print_ts(f"Loop: {loop_cnt}, Text: {DEFAULT_GEN_TEXT}, Output: {DEFAULT_OUTPUT_PATH}")    
 
+    for cnt in range(loop_cnt):
+        print_ts(f"Running inference {cnt}")
+        res = run_inference(
+                runner,
+                reference_audio=DEFAULT_REFERENCE_AUDIO,
+                ref_text=DEFAULT_REF_TEXT,
+                gen_text=DEFAULT_GEN_TEXT,
+                generated_audio=DEFAULT_OUTPUT_PATH,
+                speed=DEFAULT_SPEED,
+                nfe_step=DEFAULT_NFE_STEP,
+                fuse_nfe=DEFAULT_FUSE_NFE,
+                language=DEFAULT_LANGUAGE,
+                verbose=verbose_flag,
+            )
+        print_ts(f'Audio generated: {res["audio_seconds"]:.2f} seconds')
 
 if __name__ == "__main__":
     main()
