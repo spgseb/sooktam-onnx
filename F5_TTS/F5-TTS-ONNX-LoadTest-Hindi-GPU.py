@@ -7,7 +7,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 GPU_INFERENCE_SCRIPT = SCRIPT_DIR / "F5-TTS-ONNX-Inference-GPU.py"
-OUTPUT_DIR = Path(os.getenv("F5_HINDI_LOADTEST_OUTPUT_DIR", SCRIPT_DIR / "load_test_outputs_hindi_gpu")).resolve()
+OUTPUT_DIR = SCRIPT_DIR / "../outputs"
 SUMMARY_CSV = OUTPUT_DIR / "results.csv"
 SUMMARY_JSON = OUTPUT_DIR / "summary.json"
 
