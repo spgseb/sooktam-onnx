@@ -32,9 +32,20 @@ DEFAULT_DEVICE_ID = int(os.getenv("ORT_DEVICE_ID", "0"))
 MODEL_SAMPLE_RATE = 24000
 HOP_LENGTH = 256
 
+TENSORRT_PROVIDER = "TensorrtExecutionProvider"
 CUDA_PROVIDER = "CUDAExecutionProvider"
 CPU_PROVIDER = "CPUExecutionProvider"
 
+
+def build_trt_provider_options(device_id):
+    return {
+        "device_id": device_id,
+        "trt_engine_cache_enable": True,
+        "trt_engine_cache_path": "../outputs",
+        "trt_timing_cache_enable": True,
+        "trt_timing_cache_path": "../outputs",
+        "trt_max_workspace_size": 2147483648, # 2GB
+    }
 
 def build_cuda_provider_options(device_id):
     return {
@@ -46,10 +57,11 @@ def build_cuda_provider_options(device_id):
         "enable_cuda_graph": "0",
     }
 
-
-def build_gpu_session_providers(device_id):
-    return [(CUDA_PROVIDER, build_cuda_provider_options(device_id)), CPU_PROVIDER]
-
+def build_gpu_session_providers(device_id, trt_flag):
+    if trt_flag: # Enable TensorRT Execution Provider
+        return [(TENSORRT_PROVIDER, build_trt_provider_options(device_id)), (CUDA_PROVIDER, build_cuda_provider_options(device_id)), CPU_PROVIDER]
+    else: # Use CUDA Execution Provider
+        return [(CUDA_PROVIDER, build_cuda_provider_options(device_id)), CPU_PROVIDER]
 
 def list_str_to_idx(
     text: list[str] | list[list[str]],
@@ -159,6 +171,7 @@ def build_runner(
     onnx_model_A=DEFAULT_ONNX_MODEL_A,
     onnx_model_B=DEFAULT_ONNX_MODEL_B,
     onnx_model_C=DEFAULT_ONNX_MODEL_C,
+    trt_flag=False,
 ):
     available_providers = onnxruntime.get_available_providers()
     if CUDA_PROVIDER not in available_providers:
@@ -178,7 +191,7 @@ def build_runner(
     ort_session_B = onnxruntime.InferenceSession(
         onnx_model_B,
         sess_options=session_opts,
-        providers=build_gpu_session_providers(device_id),
+        providers=build_gpu_session_providers(device_id, trt_flag),
     )
     ort_session_C = onnxruntime.InferenceSession(
         onnx_model_C,
@@ -299,7 +312,7 @@ def run_inference(
 
 
 def main():
-    runner = build_runner(device_id=DEFAULT_DEVICE_ID, max_threads=DEFAULT_MAX_THREADS)
+    runner = build_runner(device_id=DEFAULT_DEVICE_ID, max_threads=DEFAULT_MAX_THREADS, trt_flag=True)
     print(f"\nAvailable Providers: {runner['available_providers']}")
     print(f"Transformer Providers: {runner['transformer_providers']}")
     print(f"Using CUDA device id: {runner['device_id']}")
