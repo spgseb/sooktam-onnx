@@ -36,23 +36,25 @@ def copy_into_package(src, dst):
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
 
-
+SOOKTAM2_PATH = "../../sooktam2"
+ONNX_EXPORT_PATH = "../outputs"
+Path(ONNX_EXPORT_PATH).mkdir(exist_ok=True)
 vocos_package_path = resolve_package_dir("vocos")
 f5_tts_package_path = resolve_package_dir("f5_tts")
 EXPORT_DEVICE = torch.device(os.getenv("F5_EXPORT_DEVICE", "cpu"))
 
 test_in_english      = False                                                                                 # Test the F5-TTS-ONNX model after the export process.
 use_fp16_transformer = False                                                                                 # Export the F5_Transformer.onnx in float16 format.
-F5_safetensors_path  = "/workspace/personal/team_folders/vansh.pundir/sooktam/sooktam2/model_1250000.pt"                      # The F5-TTS model download path.           URL: https://huggingface.co/SWivid/F5-TTS/tree/main/F5TTS_v1_Base
-vocab_path           = "/workspace/personal/team_folders/vansh.pundir/sooktam/sooktam2/vocab.txt"                                      # The F5-TTS model vocab download path.     URL: https://huggingface.co/SWivid/F5-TTS/tree/main/F5TTS_v1_Base
-vocos_model_path     = "/root/.cache/huggingface/hub/models--charactr--vocos-mel-24khz/snapshots/0feb3fdd929bcd6649e0e7c5a688cf7dd012ef21"
-onnx_model_A         = "/workspace/personal/team_folders/vansh.pundir/sooktam/F5-TTS-ONNX/Export_ONNX/onnx/F5_Preprocess.onnx"                                   # The exported onnx model path.
-onnx_model_B         = "/workspace/personal/team_folders/vansh.pundir/sooktam/F5-TTS-ONNX/Export_ONNX/onnx/F5_Transformer.onnx"                                  # The exported onnx model path.
-onnx_model_C         = "/workspace/personal/team_folders/vansh.pundir/sooktam/F5-TTS-ONNX/Export_ONNX/onnx/F5_Decode.onnx"                                       # The exported onnx model path.
+F5_safetensors_path  = SOOKTAM2_PATH + "/model_1250000.pt" # The F5-TTS model download path.           URL: https://huggingface.co/SWivid/F5-TTS/tree/main/F5TTS_v1_Base
+vocab_path           = SOOKTAM2_PATH + "/vocab.txt"        # The F5-TTS model vocab download path.     URL: https://huggingface.co/SWivid/F5-TTS/tree/main/F5TTS_v1_Base
+vocos_model_path     = str(Path.home()) + "/.cache/huggingface/hub/models--charactr--vocos-mel-24khz/snapshots/0feb3fdd929bcd6649e0e7c5a688cf7dd012ef21"
+onnx_model_A         = ONNX_EXPORT_PATH + "/F5_Preprocess.onnx"                                   # The exported onnx model path.
+onnx_model_B         = ONNX_EXPORT_PATH + "/F5_Transformer.onnx"                                  # The exported onnx model path.
+onnx_model_C         = ONNX_EXPORT_PATH + "/F5_Decode.onnx"                                       # The exported onnx model path.
 generated_audio      = "generated.wav"                                                                       # The generated audio path.
 
 
-reference_audio  = "/workspace/personal/team_folders/vansh.pundir/sooktam/sooktam2/ref.wav"                 # The reference audio path.
+reference_audio  = SOOKTAM2_PATH + "/ref.wav"              # The reference audio path.
 ref_text         = "सर, मैं तब से यह कह रहा हूँ कि मैंने अपना टिकट कैंसल कर दिया है, लेकिन अब तक मेरे पैसे वापस नहीं आए हैं। आप इस मामले को देखेंगे भी या नहीं?"                                                      # The ASR result of reference audio.
 gen_text         = "सर, मैं तब से यह कह रहा हूँ कि मैंने अपना टिकट कैंसल कर दिया है, लेकिन अब तक मेरे पैसे वापस नहीं आए हैं। आप इस मामले को देखेंगे भी या नहीं?"                                                       # The target TTS.
 
@@ -230,7 +232,7 @@ class F5Decode(torch.nn.Module):
 
 
 def load_model(ckpt_path):
-    model_cfg = OmegaConf.load("/workspace/personal/team_folders/vansh.pundir/sooktam/sooktam2/src/f5_tts/configs/F5TTS_v1_Base_frame.yaml")
+    model_cfg = OmegaConf.load(SOOKTAM2_PATH + "/src/f5_tts/configs/F5TTS_v1_Base_frame.yaml")
     model_cls = globals()[model_cfg.model.backbone]
     model = CFM(
         transformer=model_cls(**model_cfg.model.arch, text_num_embeds=vocab_size, mel_dim=N_MELS),

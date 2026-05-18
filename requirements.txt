@@ -1,6 +1,15 @@
+# For ONNX execution
 torch==2.6.0 
 onnxruntime-gpu
 soundfile
 pydub
 indic_unified_parser==1.0.6
 tensorrt==10.9.0.34
+# Additional for ONNX generation
+torchaudio==2.6.0
+jieba
+omegaconf
+pypinyin
+vocos
+f5_tts
+onnx

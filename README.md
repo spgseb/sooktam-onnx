@@ -6,6 +6,7 @@
 1. [TensorRT Execution Provider](https://onnxruntime.ai/docs/execution-providers/TensorRT-ExecutionProvider.html)
 1. [CUDA Execution Provider](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)
 1. [Real Time Factor (RTF)](https://openvoice-tech.net/index.php/Real-time-factor)
+1. [Sookam2 on HuggingFace](https://huggingface.co/bharatgenai/sooktam2)
 
 ## Pre-requisites
 1. Hardware: GPU-enabled machine
@@ -47,6 +48,9 @@
         python3 F5-TTS-ONNX-Inference-GPU.py
     ```
     - This converts the text to speech. The speech file is stored in ```../outputs/generated_audio_gpu.wav```
+    - To convert a specific Hindi text file and run multiple times:
+        - Copy the desired text file to the ```../outputs``` directory. The output is generated in the same directory, post-fixed with ```.wav```.
+        - For example ```python3 F5-TTS-ONNX-Inference-GPU.py test_05.txt 5``` will process the file ```.../outputs/test_05.txt``` directory and generate the file ```.../outputs/test_05.txt.wav```. It will re-rn this 5 times.
     - The code uses the *TensorrtExecutionProvider*. The first run compiles the code, so it may be substantially slower. The *RTF* is printed to gauge the real-time performance.
     - The compiled output is cached in the files ```../outputs/TensorrtExecutionProvider_*```. To force recompile, delete these files.
     - To use the *CUDAExecutionProvider*, set the ```trt_flag``` in the file to ```False```
@@ -59,5 +63,9 @@
     - Speech files are stored in ```../outputs```
     - A *.csv* and a *.json* file with measurements are also stored there.
 
-
-
+1. Re-generate the ONNX file
+    ```
+        python3 Export_F5.py
+    ```
+    - This assumes that the sooktam2 repository from HuggingFace is setup at the same level as the sooktam-onnx repository.
+    - The output ```.onnx``` files are generated in ```../outputs```. These can be compared against the original files stored at ```../onnx```.
