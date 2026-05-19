@@ -54,6 +54,7 @@
     - The code uses the *TensorrtExecutionProvider*. The first run compiles the code, so it may be substantially slower. The *RTF* is printed to gauge the real-time performance.
     - The compiled output is cached in the files ```../outputs/TensorrtExecutionProvider_*```. To force recompile, delete these files.
     - To use the *CUDAExecutionProvider*, set the ```trt_flag``` in the file to ```False```
+    - To use the generated ONNX files, set the ```MODEL_DIR``` in the file appropriately
 
 1. Run the regression to measure execution speed
     ```

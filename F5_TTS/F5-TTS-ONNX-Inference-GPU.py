@@ -15,9 +15,11 @@ from infer.cls_tokenizer_v2 import cls_tokenize_text
 
 
 DEFAULT_VOCAB_PATH = "./infer/vocab.txt"
-DEFAULT_ONNX_MODEL_A = "../onnx/F5_Preprocess.onnx"
-DEFAULT_ONNX_MODEL_B = "../onnx/F5_Transformer.onnx"
-DEFAULT_ONNX_MODEL_C = "../onnx/F5_Decode.onnx"
+MODEL_DIR = "../onnx/" # To use original onnx files
+#MODEL_DIR = "../outputs/" # To use generated onnx files
+DEFAULT_ONNX_MODEL_A = MODEL_DIR + "F5_Preprocess.onnx"
+DEFAULT_ONNX_MODEL_B = MODEL_DIR + "F5_Transformer.onnx"
+DEFAULT_ONNX_MODEL_C = MODEL_DIR + "F5_Decode.onnx"
 OUT_DIR = "../outputs/"
 DEFAULT_OUTPUT_PATH = OUT_DIR + "generated_audio_gpu.wav"
 
@@ -326,7 +328,7 @@ def print_ts(str, init_flag=False):
     print(f"{delta_ts:10d}: {str}")
 
 def main():
-    print_ts("Building model", True)
+    print_ts(f"Building model from {MODEL_DIR}", True)
     runner = build_runner(device_id=DEFAULT_DEVICE_ID, max_threads=DEFAULT_MAX_THREADS, trt_flag=True)
     print(f"\nAvailable Providers: {runner['available_providers']}")
     print(f"Transformer Providers: {runner['transformer_providers']}")
